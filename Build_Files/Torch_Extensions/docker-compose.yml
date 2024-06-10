@@ -1,0 +1,9 @@
+services:
+  pytorch_cpp_extension:
+    image: pytorch_cpp_extension
+    build:
+      context: .
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    entrypoint: /bin/bash -c "python setup.py build_ext --inplace && python setup.py install && /bin/bash"
