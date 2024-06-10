@@ -1,3 +1,4 @@
+Full project work inside main.ipynb
 # COMP 490 Project Proposal
 
 ## Implementing NaN Pooling in PyTorch's C/C++ Framework
