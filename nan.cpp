@@ -30,7 +30,7 @@ std::tuple<torch::Tensor, torch::Tensor> check_for_nans(
     int j
 ) {
     // Convert 1D indices from the pooling window to 2D indices
-    max_index = torch::stack({max_index / attrs.pool_width, max_index % attrs.pool_width}, 1);
+    max_index = torch::stack({max_index / attrs.pool_height, max_index % attrs.pool_width}, 1);
     // If any of the max values are NaN, replace NaNs in the window with -infinity and recompute max values
     if (torch::isnan(maxval).any().item<bool>()) {
         window.masked_fill_(torch::isnan(window), -std::numeric_limits<float>::infinity());
@@ -39,10 +39,12 @@ std::tuple<torch::Tensor, torch::Tensor> check_for_nans(
     
     
     // Check if multiple values are close to the max value
-    auto reshaped_maxval = maxval.view({-1, 1, 1});
-    auto close_to_max = torch::isclose(window, reshaped_maxval, 1e-3, 1e-7, true); // had to add both rtol and atol
+    auto reshaped_maxval = maxval.unsqueeze(1).unsqueeze(2);
+
+    // Perform the isclose comparison with the specified rtol and equal_nan=True
+    auto close_to_max = torch::isclose(window, reshaped_maxval, 1e-7, 1e-7, true);
     auto check_multi_max = torch::sum(close_to_max, {1, 2});
-    check_multi_max = check_multi_max / (window.size(-1) * window.size(-2));
+    
 
     // If the proportion of close values exceeds the threshold, set the max value to NaN
     if ((check_multi_max > attrs.threshold).any().item<bool>()) {
@@ -51,7 +53,7 @@ std::tuple<torch::Tensor, torch::Tensor> check_for_nans(
     }
 
     // Type-casting to int
-    // max_index = max_index.toType(torch::kInt64);
+    max_index = max_index.toType(torch::kInt64);
 
     // Find new index of max value if it has changed and is not NaN
     // std::cout << "max_index: " << max_index << std::endl;
