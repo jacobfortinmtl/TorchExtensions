@@ -73,30 +73,22 @@ switch (backend) {
 
 2. Fine-grained implementation: ```convolutionMM2d.cpp```
 
-Eventually we hit this code**:
+Eventually we hit this code:
 
 ```c++
 case ConvBackend::Slow2d:
       return at::thnn_conv2d(input, weight, kernel_size, bias, params.stride, params.padding);
 ```
 
-Which brings us to the implementations of convolutions optimized for CPU, which are found in ```convolutionMM2d.cpp```.
+Which will eventually bring us to the implementations of convolutions optimized for CPU, which are found in ```convolutionMM2d.cpp```.
 
 This new file includes helper functions for shape checking and column computation and core functions for performing forward and backward convolution passes. More precisely, the input is reformatted into a structure suitable for convolution by matrix multiplication. 
 
-These convolutions typically operate by computing the Toeplitz matrix and then doing a matrix multiply with the input. Hence, one such function found in this file is ```compute_columns2d```, which converts the input into im2col matrix. 
+These matrix multiplication are usually of the form: C=α⋅A⋅B+β⋅C. Hence, one such function found in this file is ```compute_columns2d```, which converts the input into im2col matrix such that it becomes suitable for matrix multipliaction using BLAS.
 
 After preparing the data with the im2col transformation, the code will eventually call `at::native::cpublas::gemm`. 
 
 The final step is going inside the folder CPUBlas.cpp, which acts similar to one big switch statements that calls the correct BLAS matrix multiplication function given the numerical type of your tensor (eg: tensor of double will call ```dgemm```, tensors of floats will call ```sgemm``` and so on so forth). This is sent off to the external library.
-
----
-
-**From dev notes: 
-
-*Historically, we have inefficient implementations of convolutions coming from the THNN/THCUNN library.  These convolutions typically operated by computing the Toeplitz matrix and then doing a matrix multiply with the input; this is very memory inefficient!  However, occasionally, we really don't have anything better, so it's helpful to have these fallbacks when there is no more optimized implementationin cudnn or mkldnn, etc.  Both thnn_ and slow_ convolutions fall into this bucket.*
-
-*The difference between these two designations, is that thnn_ refers to a convolution that is still written in the "legacy" style; that is, C code in the THNN/ or THCUNN/ directory.  A slow_ convolution is one that is written in the native style: modern C++.  Algorithmically, these are the same thing, but we give them different prefixes to make the operational distinction clear.*
 
 ## 3.0 Structured Kernels
 Most of the text found here is taken from [here](https://github.com/pytorch/pytorch/wiki/Codegen-and-Structured-Kernels) [1] or [here](https://drive.google.com/file/d/16qPvpCF4Jbh7ss2lCQMk5hmcyzJvUyQj/view) [3].
