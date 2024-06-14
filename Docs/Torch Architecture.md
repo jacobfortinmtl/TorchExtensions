@@ -19,7 +19,10 @@ For functions defined inside pytorch, what generally happens is that the code tr
 
 Hence, a good starting point is `pytorch/aten/src/ATen/native/`, which contains all the native C++ implementations relating to tensors [2]. Appendix has a slightly more descriptive defintions of the folders in Torch.
 
-Let's begin by tracing the convolution in torch.
+Let's begin by tracing the convolution in torch. 
+
+*Special Note: 
+PyTorch dynamically selects the backend for convolution operations based on input tensor size to optimize performance, as mentioned above. For larger batch sizes, such as 2, it uses the efficient MKL-DNN backend (for intel CPUs), while for smaller batch sizes, like 1, it switches to a more general but slower backend to reduce overhead.*
 
 ## 2.0 Unstructured Kernels Example - Convolution
 
