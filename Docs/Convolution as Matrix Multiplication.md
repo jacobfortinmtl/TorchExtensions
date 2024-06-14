@@ -150,6 +150,18 @@ Reduced Computational Overhead:
 Once the im2col transformation is done, the resulting matrix multiplication can be performed in a highly optimized, continuous operation.
 Direct convolution may require more conditional checks and smaller, less efficient operations spread across the entire input tensor.
 
+### Memory Access Patterns and Computational Efficiency
+Direct Convolution:
+
+In direct convolution, for each position in the output, you fetch the corresponding patch from the input and compute the dot product with the kernel.
+These patches are scattered throughout the input tensor, leading to non-sequential memory access.
+The process involves numerous small operations: each patch extraction and kernel application is a small, independent computation.
+im2col:
+
+im2col reorders the input tensor into a large, contiguous matrix where each row represents a flattened patch.
+This transformation allows the subsequent matrix multiplication to access memory in a more cache-friendly, sequential manner.
+Once the transformation is done, the computation becomes a large, continuous operation (matrix multiplication), which is highly optimized in terms of memory access and arithmetic operations.
+
 An interesting reading from [this stackoverflow](https://stackoverflow.com/questions/46213531/how-is-using-im2col-operation-in-convolutional-nets-more-efficient) explains why im2col is used even if we're going over the windows already (i.e., why not just do the naive convolution).
 
 _1. The Convolutional Layer and Fully Connected Layer are implemented using GEMM that stands for General Matrix to Matrix Multiplication.  
