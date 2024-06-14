@@ -119,6 +119,37 @@ The first window, for instance looks like:
   -4 -4
   ```
 
+**From GPT** While it may seem that the time complexity of im2col followed by matrix multiplication should be similar to direct convolution, the practical performance benefits arise from several factors related to hardware optimization and computational efficiency. Here’s a detailed explanation:
+
+Time Complexity
+The theoretical time complexity for both im2col followed by matrix multiplication and direct convolution is indeed similar, both being O(N * M * K), where:
+
+𝑁
+N is the number of elements in the output,
+𝑀
+M is the size of the kernel,
+𝐾
+K is the number of elements in the input.
+However, practical performance differs due to the following reasons:
+
+Reasons for im2col + Matrix Multiplication Efficiency
+Optimized Matrix Multiplication Libraries:
+
+Matrix multiplication has been highly optimized in many libraries (e.g., BLAS, cuBLAS, MKL) and hardware architectures (GPUs, TPUs).
+These libraries use advanced techniques like loop unrolling, cache optimization, and SIMD (Single Instruction, Multiple Data) to perform matrix multiplications much faster than what would be achievable with direct convolution implemented from scratch.
+Memory Access Patterns:
+
+im2col reorganizes the input tensor into a format that allows for sequential memory access during matrix multiplication.
+Direct convolution often involves more complex memory access patterns, which can lead to inefficient use of the cache and higher latency.
+Parallelization:
+
+Matrix multiplication can be easily parallelized across multiple cores and threads, making it very efficient on modern multi-core CPUs and GPUs.
+Although direct convolution can also be parallelized, the granularity of parallelism and efficiency might not be as high due to the need to handle boundary conditions and different strides/padding configurations.
+Reduced Computational Overhead:
+
+Once the im2col transformation is done, the resulting matrix multiplication can be performed in a highly optimized, continuous operation.
+Direct convolution may require more conditional checks and smaller, less efficient operations spread across the entire input tensor.
+
 An interesting reading from [this stackoverflow](https://stackoverflow.com/questions/46213531/how-is-using-im2col-operation-in-convolutional-nets-more-efficient) explains why im2col is used even if we're going over the windows already (i.e., why not just do the naive convolution).
 
 _1. The Convolutional Layer and Fully Connected Layer are implemented using GEMM that stands for General Matrix to Matrix Multiplication.  
