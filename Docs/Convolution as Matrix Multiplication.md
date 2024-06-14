@@ -38,6 +38,8 @@ These are then multiplied together to get the output.
 
 ### Convolution Using Matrix Multiplication (Im2Col Method) example
 
+For a 3d and 4d example, see [here](https://leonardoaraujosantos.gitbook.io/artificial-inteligence/machine_learning/deep_learning/convolution_layer/making_faster).
+
 Suppose we have the following input tensor and kernel:
 
 - **Input tensor (3x3)**:
@@ -60,8 +62,7 @@ The expected output tensor is:
 -4 -4
 -4 -4
 ```
-
-#### Convolution Using Matrix Multiplication (Im2Col Method)
+  
 The first window, for instance looks like:
 1. **First Window**:
 
