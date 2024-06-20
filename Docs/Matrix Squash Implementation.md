@@ -284,3 +284,17 @@ torch.Size([1, 1, 4, 4])
 ```
 
 The next steps are to parallelize the whole algorithm.
+Possible neat implementation without using pointers for parallelization NEED TO FIX BUT THIS IS BASIC IDEA:  
+#pragma omp parallel for
+    for (int i = 0; i < *ldc; ++i) {
+        if (row_to_remove[i]) {
+            for (int j = 0; j < *n; ++j) {
+                c[i + j * *ldc] = -1; // Use std::nanf("") if needed
+            }
+        } else {
+            for (int j = 0; j < *n; ++j) {
+                c[i + j * *ldc] = c_ptrLDA[i + j * *lda];
+            }
+        }
+    }
+
