@@ -284,7 +284,8 @@ torch.Size([1, 1, 4, 4])
 ```
 
 The next steps are to parallelize the whole algorithm.
-Possible neat implementation without using pointers for parallelization NEED TO FIX BUT THIS IS BASIC IDEA:  
+Possible neat implementation without using pointers for parallelization NEED TO FIX BUT THIS IS MAYBE AN IDEA:  
+```
 #pragma omp parallel for
     for (int i = 0; i < *ldc; ++i) {
         if (row_to_remove[i]) {
@@ -297,4 +298,4 @@ Possible neat implementation without using pointers for parallelization NEED TO 
             }
         }
     }
-
+```
