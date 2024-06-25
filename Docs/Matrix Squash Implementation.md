@@ -202,6 +202,7 @@ note: we are assuming that the matrix C is in column-major order, so no need cal
 This wasnt the best, since the pointer for C was being passed in many different functions in Torch, one couldn't simply re-point the pointer C as this change wouldn't stay in the 
 calling functions. Hence, the changes needed to be done in another memory location and copied back afterwards. This wasn't good. So another method was implemented.
 2.  
+  
 Method 2: Right-to left in-place NaN insertions.  
 
 To do so, we will keep two pointers in Matrix C and iterate from right to left. The first pointer will point to index *lda - 1. 
@@ -217,21 +218,21 @@ float* c_ptrLDA = c + *lda - 1;
 
 // Algorithm
 for (int i = *ldc - 1; i >= 0; --i){
-    if (row_to_remove[i]){
-        for (int j = 0; j < *n; ++j){
-            *c_ptr = -1; // testing with -1 first, then im going to replace w/ std::nanf("");
-            c_ptr--;
-        }
-    } else {
-        for (int j = 0; j < *n; ++j){
-            *c_ptr = *c_ptrLDA;
-            c_ptr--;
-            c_ptrLDA--;
-        }
-    }
+  if (row_to_remove[i]){
+      for (int j = 0; j < *n; ++j){
+          *c_ptr = std::numeric_limits<float>::quiet_NaN();
+          c_ptr--;
+      }
+  } else {
+      for (int j = 0; j < *n; ++j){
+          *c_ptr = *c_ptrLDA;
+          c_ptr--;
+          c_ptrLDA--;
+      }
+  }
 }
 ```
-Hence, looking at all intermediate steps, an example looks as follows (pay attention to the [17, NaN, NaN, NaN], in the 4th quadrant. The intermediate has 15 rows since 1 window/row was removed.
+Hence, looking at all intermediate steps, an example looks as follows (pay attention to the [17, NaN, NaN, NaN], in the 3rd quadrant. The intermediate has 15 rows since 1 window/row was removed.
 But after insertion, everything is at its good place and all 16 rows are accounted for (the result of the removed one is -1).
 Also, to make it easier to see the differences,
 instead of inserting NaNs we inserted -1:  
