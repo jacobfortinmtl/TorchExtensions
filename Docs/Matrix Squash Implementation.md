@@ -12,13 +12,13 @@ Previously, we tried a couple of different methods to improve convolutional laye
 1. For all rows of the input matrix A:
     - Check if the number of NaNs > Threshold
         - If yes: remove row, and keep index where it was removed
-        - Else: continue through other rows
+        - Else: replace NaNs by 0, and continue with other rows
 2. Perform convolution operation to obtain matrix C.
 3. After receiving matrix C, re-insert NaNs in the indexes where the rows were deleted.
 
 For a more in-depth exaplantion of all matrices (A, Band C) and how convolutions are implemented as matrix multiplications, see *Convolution as Matrix Multiplication*.
 
-## Squashing the matrix (step 1)
+## Squashing/filtering the matrix (step 1)
 To take full advantage of the matrix multiplication capabilities provided by the sgemm function in the BLAS library, it's crucial to ensure the input matrix, which contains the sliding windows, is compact. 
 This is because these multiplication operations are optimized for dense matrices. 
 Therefore, we cannot introduce gaps within the matrix, which would effectively make it sparse, as this would hinder performance. Hence, we re-create a matrix with the rows omitted.
@@ -132,7 +132,13 @@ Some notation:
         new_row = 0;
         for (int i = 0; i < *m; ++i) {
             if (!row_to_remove[i]) {
-                new_a[j * new_m + new_row] = a[j * (*lda) + i];
+                // if the value was supposed to be NaN, replace with 0
+                if (std::isnan(a[j * (*lda) + i])) {
+                    new_a[j * new_m + new_row] = 0;
+                }
+                else{
+                    new_a[j * new_m + new_row] = a[j * (*lda) + i];
+                }
                 new_row++;
             }
         }
@@ -195,7 +201,8 @@ note: we are assuming that the matrix C is in column-major order, so no need cal
 ```
 This wasnt the best, since the pointer for C was being passed in many different functions in Torch, one couldn't simply re-point the pointer C as this change wouldn't stay in the 
 calling functions. Hence, the changes needed to be done in another memory location and copied back afterwards. This wasn't good. So another method was implemented.
-2. Method 2: Right-to left in-place NaN insertions.  
+2.  
+Method 2: Right-to left in-place NaN insertions.  
 
 To do so, we will keep two pointers in Matrix C and iterate from right to left. The first pointer will point to index *lda - 1. 
 The second will point to C + *lda * *n - 1. If the value in the row is NaN, we will insert NaNs at the second pointer. Else, we will
