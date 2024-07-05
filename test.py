@@ -1,37 +1,42 @@
 import torch
-import nan_cpp as nanCPP
-import nan_ops as nanPy
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pickle
 import numpy as np
+import nan_cpp as nanCPP
+import time
+from nan_ops import NaNPool2d, NormalPool2d, NaNConv2d, NormalConv2d
 
-# setting a torch seed
-torch.manual_seed(2) # use 51 for 2,1,6,6, and 5 for 2,1,3,3
-# Creating a sample array
-#! input_tensor = torch.randint(0, 100,(2, 1, 6, 6)).float()
-max_pool_dims = (2,2)
-#input_tensor = torch.randint(1, 10,(2, 1, 3, 3)).float()
-input_tensor = torch.randint(0, 100, (2, 2, 2, 2)).float()
-input_tensor[:] = np.nan
-input_tensor[0] = 1
-input_tensor[0, 0, 0, 0] = np.nan
-input_tensor[1,1,1,1] = 10
-# !print(f"Input Tensor: \n {input_tensor}")
+FILENAME = "mri_data//sample_data//outp_bn3_1.pkl"
+# Load the data from the pickle file
+data = pickle.load(open(FILENAME, 'rb'))
 
-# """
-# Testing with Python
-# """
+if isinstance(data, tuple):
+    a = data[0]
+else:
+    a = data
 
+nanoutput, nanindices = nanCPP.NaNPool2d(a, (2,2), 1, (2,2))
+nanpoolPy = NaNPool2d(max_threshold=1)
+nanoutputPy, nanindicesPy = nanpoolPy(a, pool_size=(2,2), strides=(2,2))  # pool_size == kernel_size
 
-inesPool = nanPy.NaNPool2d() # (threshold = 0.25)
-torchPool = torch.nn.MaxPool2d(2,2,return_indices = True)
-# print(input_tensor.shape)
-#! print(f"Torch Version Pooling: \n {torchPool(input_tensor)}")
-# print("-------------------------------------")
-testing = inesPool(input_array = input_tensor, pool_size= max_pool_dims) # (input_array, pool_size, strides) __call__
-print(f"Python - NAN: \n {testing}")
+# Find the indices where nanoutput and nanoutputPy are not equal
+diff_indices = torch.ne(nanoutput, nanoutputPy)
 
-"""
-Testing with C++
-"""
+with open('output.txt', 'w') as f:
+    f.write("Differing Output Values:\n")
+    f.write(str(nanoutput[diff_indices]) + '\n')
+    f.write("Differing Output Indices:\n")
+    f.write(str(diff_indices.nonzero()) + '\n')
+print(nanoutput, nanoutputPy)
+print(torch.equal(nanoutput, nanoutputPy))
 
-cppPool = nanCPP.NaNPool2d(input_tensor, max_pool_dims, 0.25, None) # (input_tensor, max_pool_dims, nan_threshold, stride (optional))
-print(f"C++ NAN: \n {cppPool}")
+fig, axes = plt.subplots(2, 1, figsize=(10, 7))
+
+sns.heatmap(np.mean(nanoutput.detach().numpy().squeeze(), axis=0), ax=axes[0][0])
+axes[0][0].set_title('CPP Pool Threshold 0.25')
+
+sns.heatmap(np.mean(nanoutputPy.detach().numpy().squeeze(), axis=0), ax=axes[0][1])
+axes[0][1].set_title('Python Pool Threshold 0.25')
+
+plt.savefig('output.png')  # Save the plot to 'output.png'
