@@ -1,50 +1,10 @@
-torch.Size([1, 71, 64, 64])
-tensor([[[[True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          ...,
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True]],
-
-         [[True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          ...,
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True]],
-
-         [[True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          ...,
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True]],
-
-         ...,
-
-         [[True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          ...,
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True]],
-
-         [[True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          ...,
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True]],
-
-         [[True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          ...,
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True],
-          [True, True, True,  ..., True, True, True]]]])
+Differing Output Values:
+tensor([nan, nan, nan,  ..., nan, nan, nan])
+Differing Output Indices:
+tensor([[ 0,  0,  0, 34],
+        [ 0,  0,  0, 36],
+        [ 0,  0,  0, 47],
+        ...,
+        [ 0, 70, 63, 29],
+        [ 0, 70, 63, 45],
+        [ 0, 70, 63, 57]])

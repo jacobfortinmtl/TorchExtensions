@@ -33,10 +33,10 @@ print(torch.equal(nanoutput, nanoutputPy))
 
 fig, axes = plt.subplots(2, 1, figsize=(10, 7))
 
-sns.heatmap(np.mean(nanoutput.detach().numpy().squeeze(), axis=0), ax=axes[0][0])
-axes[0][0].set_title('CPP Pool Threshold 0.25')
+sns.heatmap(np.mean(nanoutput.detach().numpy().squeeze(), axis=0), ax=axes[0])
+axes[0].set_title('CPP Pool Threshold 0.25')
 
-sns.heatmap(np.mean(nanoutputPy.detach().numpy().squeeze(), axis=0), ax=axes[0][1])
-axes[0][1].set_title('Python Pool Threshold 0.25')
+sns.heatmap(np.mean(nanoutputPy.detach().numpy().squeeze(), axis=0), ax=axes[1])
+axes[1].set_title('Python Pool Threshold 0.25')
 
 plt.savefig('output.png')  # Save the plot to 'output.png'
