@@ -18,9 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --recursive https://github.com/pytorch/pytorch.git \
+RUN git clone --recursive https://github.com/jacobfortinmtl/pytorch.git \
 && cd pytorch \
-&& git checkout viable/strict \
 && git submodule sync \
 && git submodule update --init --recursive
 
@@ -38,9 +37,10 @@ SHELL ["conda", "run", "-n", "torch_source", "/bin/bash", "-c"]
 # Copy PyTorch requirements.txt and install PyTorch dependencies
 RUN conda run -n torch_source pip install -r /pytorch/requirements.txt
 
-RUN conda run -n torch_source conda install -y \
-    intel::mkl-static \
-    intel::mkl-include \
+RUN conda run -n torch_source conda config --add channels conda-forge && \
+    conda run -n torch_source conda install -y \
+    mkl-static \
+    mkl-include \
     && conda run -n torch_source conda clean -ya
 
 # Fix ownership for git safety
