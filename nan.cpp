@@ -44,10 +44,14 @@ std::tuple<torch::Tensor, torch::Tensor> check_for_nans(
     // Perform the isclose comparison with the specified rtol and equal_nan=True
     auto close_to_max = torch::isclose(window, reshaped_maxval, 1e-7, 1e-7, true);
     auto check_multi_max = torch::sum(close_to_max, {1, 2});
+
+    // changing check_mulit_max to a ratio
+    check_multi_max = check_multi_max.to(torch::kFloat32) / (attrs.pool_height * attrs.pool_width);
     
 
     // If the proportion of close values exceeds the threshold, set the max value to NaN
-    if ((check_multi_max > attrs.threshold).any().item<bool>()) {
+    // std::cout << "check_multi_max: " << check_multi_max << std::endl;   
+    if ((check_multi_max >= attrs.threshold).any().item<bool>()) {
         auto nan_tensor = torch::full_like(maxval, std::numeric_limits<float>::quiet_NaN());
         maxval = torch::where(check_multi_max > attrs.threshold, nan_tensor, maxval);
     }

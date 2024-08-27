@@ -1,4 +1,4 @@
-Use the latest PyTorch base image with CUDA 12.1 and cuDNN 8
+# Use the latest PyTorch base image with CUDA 12.1 and cuDNN 8
 FROM pytorch/pytorch:2.2.1-cuda12.1-cudnn8-devel
 
 # Install necessary dependencies
